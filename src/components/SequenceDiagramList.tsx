@@ -30,19 +30,6 @@ const HArrow: React.FC<{ label?: string; color?: string; reverse?: boolean }> = 
   </div>
 );
 
-/* ─── Animated vertical arrow ───────────────────────────────────────────── */
-const VArrow: React.FC<{ label?: string; color?: string }> = ({ label, color = '#3b82f6' }) => (
-  <div className="flex flex-row items-center gap-1 my-0.5 self-start ml-[68px]">
-    <svg width="22" height="40" viewBox="0 0 22 40" fill="none">
-      <line x1="11" y1="2" x2="11" y2="32" stroke={color} strokeWidth="2" className="animated-dash" />
-      <polygon points="5,32 11,42 17,32" fill={color} className="arrow-pulse" />
-    </svg>
-    {label && (
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{label}</span>
-    )}
-  </div>
-);
-
 /* ─── Actor / Node Box ───────────────────────────────────────────────────── */
 interface ActorProps {
   icon: React.ReactNode;

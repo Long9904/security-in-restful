@@ -4,7 +4,6 @@ import {
   FileText, 
   Settings, 
   Clock, 
-  Cpu, 
   CheckCircle,
   XCircle,
   ArrowRight,
