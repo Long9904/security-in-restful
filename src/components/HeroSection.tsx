@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShieldAlert, Zap, TrendingDown, Terminal, Lock, ShieldCheck } from 'lucide-react';
+import { ShieldAlert, Zap, TrendingDown, Terminal, ShieldCheck } from 'lucide-react';
 import type { HeroSectionProps } from '../types';
 
 const icons = [ShieldAlert, Zap, TrendingDown];
