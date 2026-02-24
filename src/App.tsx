@@ -8,6 +8,7 @@ import ProsConsTable from './components/ProsConsTable';
 import CallOutBlock from './components/CallOutBlock';
 import AbacDiagram from './components/AbacDiagram';
 import StandardSecurityFlow from './components/StandardSecurityFlow';
+import CSharpCodeExamples from './components/CSharpCodeExamples';
 
 import {
   heroData,
@@ -49,6 +50,7 @@ const NavBar = () => (
         <a href="#concepts" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">Khái niệm</a>
         <a href="#jwt" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">JWT</a>
         <a href="#abac" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">ABAC (Advanced)</a>
+        <a href="#csharp" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">C# Code</a>
       </div>
       <div className="lg:hidden">
         <button className="p-2 bg-slate-100 rounded-lg text-slate-600">
@@ -160,6 +162,12 @@ function App() {
         <SectionDivider />
         <section id="abac" className="scroll-mt-24">
           <AbacDiagram />
+        </section>
+
+        {/* C# Code Examples */}
+        <SectionDivider />
+        <section id="csharp" className="scroll-mt-24">
+          <CSharpCodeExamples />
         </section>
 
       </main>
