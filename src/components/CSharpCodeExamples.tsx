@@ -30,7 +30,7 @@ const CODE_TABS: CodeTab[] = [
     icon: Key,
     color: 'amber',
     badge: 'Microsoft.AspNetCore.Authentication.JwtBearer',
-    description: 'Cài đặt JWT Bearer Authentication trong ASP.NET Core. Server xác minh chữ ký token bằng secret key, trích xuất claims và gán vào HttpContext.User.',
+    description: 'Set up JWT Bearer Authentication in ASP.NET Core. The server verifies the token signature using a secret key, extracts the claims, and assigns them to HttpContext.User.',
     files: [
       {
         filename: 'Program.cs',
@@ -41,11 +41,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ① Lấy secret key từ appsettings.json (KHÔNG hard-code!)
+// ① Read the secret key from appsettings.json (NEVER hard-code!)
 var jwtKey = builder.Configuration["Jwt:Key"]!;
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
 
-// ② Đăng ký Authentication + scheme mặc định là JwtBearer
+// ② Register Authentication + set JwtBearer as the default scheme
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -57,13 +57,13 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer           = true,
         ValidateAudience         = true,
-        ValidateLifetime         = true,   // Kiểm tra exp
-        ValidateIssuerSigningKey = true,   // Kiểm tra chữ ký
+        ValidateLifetime         = true,   // Check expiry (exp)
+        ValidateIssuerSigningKey = true,   // Verify signature
         ValidIssuer              = jwtIssuer,
         ValidAudience            = jwtIssuer,
         IssuerSigningKey         = new SymmetricSecurityKey(
                                        Encoding.UTF8.GetBytes(jwtKey)),
-        ClockSkew                = TimeSpan.Zero // Không cho phép trễ
+        ClockSkew                = TimeSpan.Zero // No clock drift tolerance
     };
 });
 
@@ -72,8 +72,8 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// ③ Thứ tự middleware quan trọng!
-app.UseAuthentication(); // Phải trước UseAuthorization
+// ③ Middleware order matters!
+app.UseAuthentication(); // Must come before UseAuthorization
 app.UseAuthorization();
 app.MapControllers();
 app.Run();`,
@@ -94,26 +94,26 @@ public class TokenService
 
     public string GenerateToken(ApplicationUser user)
     {
-        // ① Tạo danh sách claims (payload của JWT)
+        // ① Build the claims list (JWT payload)
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email!),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // JWT ID
-            new(ClaimTypes.Role, user.Role)   // Dùng cho Authorization
+            new(ClaimTypes.Role, user.Role)   // Used for Authorization
         };
 
-        // ② Tạo signing key từ secret
+        // ② Build the signing key from the secret
         var key  = new SymmetricSecurityKey(
                        Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        // ③ Tạo token descriptor
+        // ③ Build the token descriptor
         var token = new JwtSecurityToken(
             issuer:             _config["Jwt:Issuer"],
             audience:           _config["Jwt:Issuer"],
             claims:             claims,
-            expires:            DateTime.UtcNow.AddHours(2),  // Hết hạn sau 2h
+            expires:            DateTime.UtcNow.AddHours(2),  // Expires in 2 hours
             signingCredentials: cred
         );
 
@@ -141,7 +141,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        // ① Tìm user theo email
+        // ① Look up user by email
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null)
             return Unauthorized(new { error = "Invalid credentials" }); // Generic msg!
@@ -149,9 +149,9 @@ public class AuthController : ControllerBase
         // ② Verify password (bcrypt internally)
         var valid = await _userManager.CheckPasswordAsync(user, dto.Password);
         if (!valid)
-            return Unauthorized(new { error = "Invalid credentials" }); // Không tiết lộ
+            return Unauthorized(new { error = "Invalid credentials" }); // Don't reveal which field was wrong
 
-        // ③ Cấp JWT
+        // ③ Issue JWT
         var token = _tokenService.GenerateToken(user);
         return Ok(new { token, expiresIn = 7200 });
     }
@@ -165,34 +165,34 @@ public class AuthController : ControllerBase
     icon: ShieldCheck,
     color: 'violet',
     badge: 'Role-Based & Policy-Based',
-    description: 'Phân quyền truy cập theo Role hoặc Policy. ASP.NET Core Authorization Middleware sẽ tự động kiểm tra claims của user trước khi cho phép vào handler.',
+    description: 'Control access by Role or Policy. ASP.NET Core Authorization Middleware automatically validates the user claims before allowing the request to reach the handler.',
     files: [
       {
         filename: 'Program.cs — Authorization Policies',
         lang: 'csharp',
         code: `builder.Services.AddAuthorization(options =>
 {
-    // ① Policy đơn giản: chỉ Admin mới được
+    // ① Simple policy: Admin only
     options.AddPolicy("AdminOnly", policy =>
         policy.RequireRole("Admin"));
 
-    // ② Policy kết hợp nhiều điều kiện
+    // ② Combined conditions policy
     options.AddPolicy("SeniorEmployee", policy =>
         policy.RequireRole("Manager", "Admin")
               .RequireClaim("department", "IT", "Finance")
               .RequireAuthenticatedUser());
 
-    // ③ Policy tùy chỉnh với requirement
+    // ③ Custom policy with a requirement
     options.AddPolicy("MinimumAge18", policy =>
         policy.Requirements.Add(new MinAgeRequirement(18)));
 
-    // ④ Default policy: phải login
+    // ④ Default policy: must be logged in
     options.DefaultPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
 });
 
-// Đăng ký custom handler
+// Register custom handler
 builder.Services.AddScoped<IAuthorizationHandler, MinAgeHandler>();`,
       },
       {
@@ -200,28 +200,28 @@ builder.Services.AddScoped<IAuthorizationHandler, MinAgeHandler>();`,
         lang: 'csharp',
         code: `[ApiController]
 [Route("api/[controller]")]
-[Authorize]  // ← Toàn bộ controller: phải đăng nhập
+[Authorize]  // ← Entire controller: must be logged in
 public class AdminController : ControllerBase
 {
-    // ① Chỉ Admin mới truy cập được
+    // ① Admin only
     [HttpGet("dashboard")]
     [Authorize(Roles = "Admin")]
     public IActionResult GetDashboard()
         => Ok(new { message = "Admin dashboard" });
 
-    // ② Dùng Policy name
+    // ② Use policy name
     [HttpGet("reports")]
     [Authorize(Policy = "SeniorEmployee")]
     public IActionResult GetReports()
         => Ok(new { data = "Confidential reports" });
 
-    // ③ Cho phép anonymous (override [Authorize] ở controller)
+    // ③ Allow anonymous (overrides [Authorize] on controller)
     [HttpGet("public-info")]
     [AllowAnonymous]
     public IActionResult GetPublicInfo()
         => Ok(new { info = "Public information" });
 
-    // ④ Kiểm tra thủ công trong logic
+    // ④ Manual authorization check inside logic
     [HttpDelete("users/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUser(
@@ -232,7 +232,7 @@ public class AdminController : ControllerBase
         if (!result.Succeeded)
             return Forbid(); // 403
 
-        // ... logic xóa
+        // ... delete logic
         return NoContent();
     }
 }`,
@@ -254,16 +254,16 @@ public class MinAgeHandler : AuthorizationHandler<MinAgeRequirement>
         AuthorizationHandlerContext context,
         MinAgeRequirement requirement)
     {
-        // Lấy claim "birthdate" từ JWT payload
+        // Read the "birthdate" claim from JWT payload
         var dob = context.User.FindFirst(c => c.Type == "birthdate")?.Value;
 
         if (dob != null &&
             DateTime.TryParse(dob, out var birthDate) &&
             DateTime.Today.Year - birthDate.Year >= requirement.MinimumAge)
         {
-            context.Succeed(requirement); // ✅ Cho phép
+            context.Succeed(requirement); // ✅ Access granted
         }
-        // else: context.Fail() hoặc không làm gì → bị từ chối
+        // else: context.Fail() or do nothing → access denied
 
         return Task.CompletedTask;
     }
@@ -277,7 +277,7 @@ public class MinAgeHandler : AuthorizationHandler<MinAgeRequirement>
     icon: Activity,
     color: 'rose',
     badge: 'Microsoft.AspNetCore.RateLimiting (.NET 7+)',
-    description: 'Giới hạn số lượng request mỗi IP/user trong một khoảng thời gian. Built-in Rate Limiter của .NET 7+ hỗ trợ Fixed Window, Sliding Window, Token Bucket và Concurrency.',
+    description: 'Limit the number of requests per IP/user within a time window. The built-in .NET 7+ Rate Limiter supports Fixed Window, Sliding Window, Token Bucket, and Concurrency limiters.',
     files: [
       {
         filename: 'Program.cs',
@@ -289,16 +289,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRateLimiter(options =>
 {
-    // ① Fixed Window: 10 req mỗi 15 giây mỗi IP
+    // ① Fixed Window: 10 req per 15 sec per IP
     options.AddFixedWindowLimiter("fixed", opt =>
     {
         opt.PermitLimit         = 10;
         opt.Window              = TimeSpan.FromSeconds(15);
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        opt.QueueLimit          = 5;  // Hàng đợi tối đa 5 req
+        opt.QueueLimit          = 5;  // Max 5 queued requests
     });
 
-    // ② Sliding Window: Mịn hơn, chia window thành segments
+    // ② Sliding Window: smoother, divides the window into segments
     options.AddSlidingWindowLimiter("sliding", opt =>
     {
         opt.PermitLimit          = 100;
@@ -308,7 +308,7 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueLimit           = 10;
     });
 
-    // ③ Token Bucket: Phù hợp cho burst traffic
+    // ③ Token Bucket: good for burst traffic
     options.AddTokenBucketLimiter("token", opt =>
     {
         opt.TokenLimit          = 20;
@@ -317,7 +317,7 @@ builder.Services.AddRateLimiter(options =>
         opt.AutoReplenishment   = true;
     });
 
-    // ④ Phản hồi khi bị giới hạn
+    // ④ Response when the limit is hit
     options.OnRejected = async (context, cancellationToken) =>
     {
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
@@ -329,7 +329,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
-app.UseRateLimiter(); // Middleware phải được thêm vào pipeline
+app.UseRateLimiter(); // Middleware must be added to the pipeline
 app.MapControllers();
 app.Run();`,
       },
@@ -342,15 +342,15 @@ public class ProductsController : ControllerBase
 {
     // ① Apply rate limit policy cho endpoint cụ thể
     [HttpGet]
-    [EnableRateLimiting("sliding")]  // Dùng sliding window
+    [EnableRateLimiting("sliding")]  // Use sliding window
     public IActionResult GetAll() => Ok(/* ... */);
 
-    // ② Route login nhạy cảm: rate limit chặt hơn
+    // ② Sensitive login route: stricter rate limit
     [HttpPost("/api/auth/login")]
-    [EnableRateLimiting("fixed")]   // Max 10 lần thử / 15s
+    [EnableRateLimiting("fixed")]   // Max 10 attempts / 15s
     public async Task<IActionResult> Login([FromBody] LoginDto dto) => Ok(/* ... */);
 
-    // ③ Disable rate limit cho endpoint nội bộ
+    // ③ Disable rate limiting for internal health endpoint
     [HttpGet("health")]
     [DisableRateLimiting]
     public IActionResult Health() => Ok(new { status = "healthy" });
@@ -359,11 +359,11 @@ public class ProductsController : ControllerBase
       {
         filename: 'Middleware/IpRateLimitMiddleware.cs',
         lang: 'csharp',
-        code: `// Custom middleware: Rate limit theo IP address
+        code: `// Custom middleware: rate limit by IP address
 public class IpRateLimitMiddleware
 {
     private readonly RequestDelegate _next;
-    // In-memory store (production nên dùng Redis)
+    // In-memory store (use Redis in production)
     private static readonly ConcurrentDictionary<string, (int Count, DateTime Reset)>
         _store = new();
 
@@ -410,7 +410,7 @@ public class IpRateLimitMiddleware
     icon: FileCheck,
     color: 'emerald',
     badge: 'FluentValidation + DataAnnotations',
-    description: 'Xác thực mọi input từ client ở server-side. Dùng FluentValidation cho rule phức tạp hoặc DataAnnotations cho rule đơn giản. Không bao giờ tin tưởng dữ liệu từ client.',
+    description: 'Validate every input from the client on the server side. Use FluentValidation for complex rules or DataAnnotations for simple ones. Never trust data coming from the client.',
     files: [
       {
         filename: 'DTOs/CreateUserDto.cs — DataAnnotations',
@@ -419,24 +419,24 @@ public class IpRateLimitMiddleware
 
 public class CreateUserDto
 {
-    [Required(ErrorMessage = "Username là bắt buộc")]
+    [Required(ErrorMessage = "Username is required")]
     [StringLength(50, MinimumLength = 3,
-        ErrorMessage = "Username phải từ 3-50 ký tự")]
+        ErrorMessage = "Username must be 3–50 characters")]
     [RegularExpression(@"^[a-zA-Z0-9_]+$",
-        ErrorMessage = "Chỉ được chứa chữ, số và _")]
+        ErrorMessage = "Only letters, numbers, and _ are allowed")]
     public string Username { get; set; } = null!;
 
     [Required]
-    [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+    [EmailAddress(ErrorMessage = "Invalid email address")]
     public string Email { get; set; } = null!;
 
     [Required]
-    [MinLength(8, ErrorMessage = "Password tối thiểu 8 ký tự")]
+    [MinLength(8, ErrorMessage = "Password must be at least 8 characters")]
     [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$",
-        ErrorMessage = "Password phải có chữ hoa, chữ thường, số, ký tự đặc biệt")]
+        ErrorMessage = "Password must contain uppercase, lowercase, a digit, and a special character")]
     public string Password { get; set; } = null!;
 
-    [Range(13, 120, ErrorMessage = "Tuổi phải từ 13 đến 120")]
+    [Range(13, 120, ErrorMessage = "Age must be between 13 and 120")]
     public int Age { get; set; }
 }`,
       },
@@ -456,21 +456,21 @@ public class CreateUserValidator : AbstractValidator<CreateUserDto>
         RuleFor(x => x.Username)
             .NotEmpty().WithMessage("Username là bắt buộc")
             .Length(3, 50)
-            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Ký tự không hợp lệ")
-            // Async rule: kiểm tra username đã tồn tại chưa
-            .MustAsync(BeUniqueUsername).WithMessage("Username đã được dùng");
+            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Invalid characters")
+            // Async rule: check if username is already taken
+            .MustAsync(BeUniqueUsername).WithMessage("Username is already taken");
 
         RuleFor(x => x.Email)
             .NotEmpty()
             .EmailAddress()
-            .MustAsync(BeUniqueEmail).WithMessage("Email đã đăng ký");
+            .MustAsync(BeUniqueEmail).WithMessage("Email is already registered");
 
         RuleFor(x => x.Password)
             .NotEmpty()
             .MinimumLength(8)
-            .Matches(@"[A-Z]").WithMessage("Cần ít nhất 1 chữ hoa")
-            .Matches(@"[0-9]").WithMessage("Cần ít nhất 1 chữ số")
-            .Matches(@"[\W_]").WithMessage("Cần ít nhất 1 ký tự đặc biệt");
+            .Matches(@"[A-Z]").WithMessage("Must contain at least one uppercase letter")
+            .Matches(@"[0-9]").WithMessage("Must contain at least one digit")
+            .Matches(@"[\W_]").WithMessage("Must contain at least one special character");
 
         RuleFor(x => x.Age)
             .InclusiveBetween(13, 120);
@@ -498,27 +498,27 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
-        // ① Validate thủ công (hoặc tự động nếu dùng auto-validation)
+        // ① Manually validate (or automatically if using auto-validation)
         var result = await _validator.ValidateAsync(dto);
         if (!result.IsValid)
         {
-            // Trả về danh sách lỗi cụ thể
+            // Return the list of specific errors
             return ValidationProblem(result.ToDictionary());
         }
 
-        // ② Sanitize thêm (ngăn XSS)
+        // ② Extra sanitize (prevent XSS)
         dto.Username = System.Web.HttpUtility.HtmlEncode(dto.Username);
 
-        // ③ Không log sensitive data!
-        // ❌ Sai:  _logger.LogInformation("Creating user: {dto}", dto);
-        // ✅ Đúng: _logger.LogInformation("Creating user: {username}", dto.Username);
+        // ③ Never log sensitive data!
+        // ❌ Wrong: _logger.LogInformation("Creating user: {dto}", dto);
+        // ✅ Right: _logger.LogInformation("Creating user: {username}", dto.Username);
 
         // ... save to database với parameterized query (EF Core tự làm)
         return CreatedAtAction(nameof(GetById), new { id = 1 }, null);
     }
 }
 
-// ─── Đăng ký FluentValidation trong Program.cs ────────────────────────────
+// ─── Register FluentValidation in Program.cs ──────────────────────────────
 // builder.Services.AddFluentValidationAutoValidation();
 // builder.Services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();`,
       },
@@ -530,7 +530,7 @@ public class UsersController : ControllerBase
     icon: Lock,
     color: 'blue',
     badge: 'TLS / HSTS / Security Headers',
-    description: 'Bảo vệ kênh truyền bằng TLS/SSL, ép buộc HTTPS, và thêm các HTTP Security Headers để chống XSS, clickjacking, và content sniffing.',
+    description: 'Secure the transport layer with TLS/SSL, enforce HTTPS, and add HTTP Security Headers to protect against XSS, clickjacking, and content sniffing.',
     files: [
       {
         filename: 'Program.cs',
@@ -542,7 +542,7 @@ builder.Services.AddHsts(options =>
 {
     options.Preload           = true;
     options.IncludeSubDomains = true;
-    options.MaxAge            = TimeSpan.FromDays(365); // 1 năm
+    options.MaxAge            = TimeSpan.FromDays(365); // 1 year
 });
 
 // ② HTTPS Redirection
@@ -552,21 +552,21 @@ builder.Services.AddHttpsRedirection(options =>
     options.HttpsPort          = 443;
 });
 
-// ③ CORS (chỉ cho phép origin tin cậy)
+// ③ CORS (only allow trusted origins)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("TrustedOrigins", policy =>
         policy.WithOrigins("https://myapp.com", "https://admin.myapp.com")
               .AllowedMethods("GET", "POST", "PUT", "DELETE")
               .AllowedHeaders("Authorization", "Content-Type")
-              .DisallowCredentials()); // Cookie không qua CORS
+              .DisallowCredentials()); // Cookies don't cross CORS
 });
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseHsts(); // Chỉ dùng Production (dev dùng localhost)
+    app.UseHsts(); // Production only (dev uses localhost)
 }
 
 app.UseHttpsRedirection(); // Redirect HTTP → HTTPS
@@ -580,7 +580,7 @@ app.Run();`,
         filename: 'Middleware/SecurityHeadersMiddleware.cs',
         lang: 'csharp',
         code: `/// <summary>
-/// Thêm các HTTP Security Headers vào mỗi response
+/// Adds HTTP Security Headers to every response
 /// </summary>
 public class SecurityHeadersMiddleware
 {
@@ -591,16 +591,16 @@ public class SecurityHeadersMiddleware
     {
         var headers = context.Response.Headers;
 
-        // Chống Clickjacking (nhúng trong iframe)
+        // Prevent Clickjacking (embedding in iframes)
         headers["X-Frame-Options"] = "DENY";
 
-        // Chống MIME type sniffing
+        // Prevent MIME type sniffing
         headers["X-Content-Type-Options"] = "nosniff";
 
-        // Tắt Referrer khi cross-origin
+        // No referrer on cross-origin requests
         headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
 
-        // Content Security Policy (CSP) — chỉ chạy script từ cùng origin
+        // Content Security Policy (CSP) — only run scripts from same origin
         headers["Content-Security-Policy"] =
             "default-src 'self'; " +
             "script-src 'self' 'nonce-{random}'; " +
@@ -610,14 +610,14 @@ public class SecurityHeadersMiddleware
             "connect-src 'self'; " +
             "frame-ancestors 'none'";
 
-        // Permissions Policy (tắt các browser API không cần)
+        // Permissions Policy (disable browser APIs we don't need)
         headers["Permissions-Policy"] =
             "camera=(), microphone=(), geolocation=(), payment=()";
 
         // XSS Protection (legacy browsers)
         headers["X-XSS-Protection"] = "1; mode=block";
 
-        // Ẩn server information
+        // Hide server information
         context.Response.Headers.Remove("Server");
         context.Response.Headers.Remove("X-Powered-By");
 
@@ -625,7 +625,7 @@ public class SecurityHeadersMiddleware
     }
 }
 
-// ─── Đăng ký trong Program.cs ─────────────────────────────────────────────
+// ─── Register in Program.cs ──────────────────────────────────────────────
 // app.UseMiddleware<SecurityHeadersMiddleware>();`,
       },
       {
@@ -660,7 +660,7 @@ public class SecurityHeadersMiddleware
   }
 }
 
-// ⚠ Secrets (Key, password) phải dùng:
+// ⚠ Secrets (Key, password) should use:
 // - dotnet user-secrets (development)
 // - Azure Key Vault / AWS Secrets Manager (production)
 // - Environment variables (containers)`,
@@ -850,10 +850,10 @@ export default function CSharpCodeExamples() {
           C# Implementation
         </span>
         <h2 className="text-3xl font-black tracking-tighter text-slate-900 mt-2">
-          Cách code trong C# / ASP.NET Core
+          How to implement it in C# / ASP.NET Core
         </h2>
         <p className="text-slate-500 mt-2 font-medium text-sm max-w-xl mx-auto">
-          Các đoạn code thực tế, production-ready để triển khai bảo mật cho RESTful API
+          Real-world, production-ready code snippets to secure your RESTful API
         </p>
       </div>
 
@@ -972,11 +972,11 @@ export default function CSharpCodeExamples() {
               <ChevronRight size={14} className="text-slate-400 flex-shrink-0" />
               <p className="text-[11px] text-slate-400 font-medium">
                 <strong className="text-slate-600">Tip:</strong>{' '}
-                {tab.id === 'jwt' && 'Không bao giờ lưu JWT secret vào source code. Dùng dotnet user-secrets khi dev và Azure Key Vault / environment variables khi production.'}
-                {tab.id === 'authz' && 'Nên dùng Policy thay vì check role thủ công (if user.IsInRole) vì Policy linh hoạt hơn và dễ test hơn.'}
-                {tab.id === 'ratelimit' && 'Production nên dùng Redis-backed rate limiter (AspNetCoreRateLimit) để hoạt động đúng khi scale nhiều instance.'}
-                {tab.id === 'validation' && 'FluentValidation hỗ trợ async validation (async MustAsync) nên rất phù hợp để kiểm tra DB như "email đã tồn tại chưa".'}
-                {tab.id === 'https' && 'Content Security Policy (CSP) là header quan trọng nhất để chống XSS. Hãy test CSP với công cụ report-uri.com trước khi deploy.'}
+                {tab.id === 'jwt' && 'Never store the JWT secret in source code. Use dotnet user-secrets in development and Azure Key Vault or environment variables in production.'}
+                {tab.id === 'authz' && 'Prefer Policies over manual role checks (if user.IsInRole) — Policies are more flexible and much easier to unit test.'}
+                {tab.id === 'ratelimit' && 'In production, use a Redis-backed rate limiter (AspNetCoreRateLimit) so it works correctly when scaled across multiple instances.'}
+                {tab.id === 'validation' && 'FluentValidation supports async rules (MustAsync), making it ideal for DB checks like "is this email already taken?".'}
+                {tab.id === 'https' && 'Content Security Policy (CSP) is the most important header for preventing XSS. Test your CSP config with report-uri.com before deploying.'}
               </p>
             </div>
           </motion.div>

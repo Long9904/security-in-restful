@@ -11,57 +11,57 @@ import type {
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
 export const heroData: HeroSectionProps = {
-  title: 'Bảo mật trong RESTful WebService',
-  subtitle: 'Tại sao hệ thống của bạn cần được bảo vệ?',
+  title: 'Security in RESTful WebService',
+  subtitle: 'Why does your system need to be protected?',
   content: [
-    'Bảo vệ dữ liệu (Data Protection): Xác định rõ quyền truy cập, đặc biệt với các method như DELETE (xóa tài nguyên) và PUT (cập nhật tài nguyên).',
-    'Chống tấn công DOS: Ngăn chặn API rơi vào trạng thái ngừng hoạt động do bị quá tải nếu không có biện pháp bảo mật đúng đắn.',
-    'Chống Farming: Nếu không có cơ chế xác thực/cấp quyền, API có thể bị lạm dụng, làm quá tải server và giảm tốc độ phản hồi.',
+    'Data Protection: Clearly define access rights, especially for methods like DELETE (remove a resource) and PUT (update a resource).',
+    'DoS Prevention: Stop your API from going down due to being flooded with requests when there are no proper defenses in place.',
+    'Anti-Farming: Without authentication and authorization, your API can be abused — overloading the server and slowing down response times for everyone.',
   ],
 };
 
 // ─── Core Concepts ────────────────────────────────────────────────────────────
 
 export const comparisonData: SideBySideComparisonCardProps = {
-  title: 'Khái niệm Cốt lõi: Authentication vs Authorization',
+  title: 'Core Concepts: Authentication vs Authorization',
   leftCard: {
-    header: 'Authentication (Xác thực)',
+    header: 'Authentication',
     icon: 'ShieldCheck',
     description:
-      'Là quá trình xác định danh tính của một người dùng. Người dùng cung cấp thông tin xác thực (credentials) để so sánh với dữ liệu được lưu trữ.',
+      "The process of verifying who you are. The user provides credentials that get checked against what's stored in the system.",
     analogy:
-      'Giống như việc bạn xuất trình thẻ từ để bước qua cửa chính của một tòa nhà server.',
+      'Like swiping your ID card to get through the front door of a server building.',
   },
   rightCard: {
-    header: 'Authorization (Cấp quyền)',
+    header: 'Authorization',
     icon: 'Key',
     description:
-      'Là quá trình xác định xem người dùng có quyền truy cập vào một tài nguyên cụ thể hay không. Nó quyết định những gì người dùng được phép làm.',
+      "The process of deciding what you're allowed to do. Once you're in, it controls which resources you can access and what actions you can take.",
     analogy:
-      'Sau khi vào tòa nhà, nó quyết định bạn được phép vào những phòng nào và thao tác trên những thiết bị nào.',
+      "Once you're inside the building, it decides which rooms you can enter and which equipment you can touch.",
   },
 };
 
 // ─── Best Practices ───────────────────────────────────────────────────────────
 
 export const bestPracticesData: GridListProps = {
-  title: 'Best Practices cho RESTful API',
+  title: 'Best Practices for RESTful APIs',
   items: [
     {
       title: 'Validation',
-      desc: 'Xác thực mọi input trên server để chống SQL/NoSQL injection.',
+      desc: 'Always validate every input on the server side to protect against SQL/NoSQL injection attacks.',
     },
     {
       title: 'No Sensitive Data in URL',
-      desc: 'Không bao giờ truyền username, password hoặc token trong URL; hãy dùng method POST.',
+      desc: 'Never put usernames, passwords, or tokens in the URL. Use POST instead.',
     },
     {
       title: 'Method Restriction',
-      desc: 'Giới hạn nghiêm ngặt các method GET, POST, DELETE. Method GET không được phép có khả năng xóa dữ liệu.',
+      desc: 'Strictly limit which HTTP methods (GET, POST, DELETE) are allowed per endpoint. A GET should never be able to delete data.',
     },
     {
       title: 'Generic Error Messages',
-      desc: 'Sử dụng mã lỗi HTTP chuẩn (ví dụ 403 Forbidden).',
+      desc: 'Use standard HTTP error codes (e.g. 403 Forbidden) without leaking internal details.',
     },
   ],
 };
@@ -69,29 +69,29 @@ export const bestPracticesData: GridListProps = {
 // ─── JWT Diagram ──────────────────────────────────────────────────────────────
 
 export const jwtDiagramData: InteractiveDiagramProps = {
-  title: 'Kiến trúc JSON Web Token (JWT)',
+  title: 'JSON Web Token (JWT) Architecture',
   description:
-    'JWT bao gồm 3 phần: Header, Payload, và Signature. Kích thước nhỏ gọn, dễ dàng truyền tải trong môi trường HTML và HTTP.',
+    'A JWT has 3 parts: Header, Payload, and Signature. It is compact and easy to pass around in HTTP and HTML environments.',
   diagramSteps: [
     {
       step: '1',
       boxLabel: 'Header',
       detail:
-        'Chứa thông tin thuật toán (vd: HMAC SHA256) và loại token (JWT). Được encode bằng Base64Url.',
+        'Contains the algorithm (e.g. HMAC SHA256) and token type (JWT). Encoded with Base64Url.',
       color: 'bg-red-100 text-red-800 border-red-300',
     },
     {
       step: '2',
       boxLabel: 'Payload',
       detail:
-        "Chứa các 'claims' (thông tin về user) như sub, name, iat. Không nên chứa dữ liệu nhạy cảm vì chỉ được encode, không encrypt.",
+        "Contains 'claims' — user info like sub, name, iat. Don't store sensitive data here since it's only encoded, not encrypted.",
       color: 'bg-purple-100 text-purple-800 border-purple-300',
     },
     {
       step: '3',
       boxLabel: 'Signature',
       detail:
-        'Được tạo bằng cách kết hợp encoded header, encoded payload, và một chuỗi secret. Đảm bảo token không bị giả mạo.',
+        'Created by combining the encoded header, encoded payload, and a secret key. Ensures the token has not been tampered with.',
       color: 'bg-blue-100 text-blue-800 border-blue-300',
     },
   ],
@@ -100,31 +100,31 @@ export const jwtDiagramData: InteractiveDiagramProps = {
 // ─── Security Flow ────────────────────────────────────────────────────────────
 
 export const securityFlowData: SequenceDiagramListProps = {
-  title: 'Luồng hoạt động (Security Flow)',
+  title: 'Security Flow Overview',
   flows: [
     {
-      flowName: 'Truy cập khi chưa xác thực',
+      flowName: 'Accessing Without Authentication',
       steps: [
-        'Request đến Authentication Middleware.',
-        'Middleware kiểm tra credential. Nếu không có, gán User thành anonymous.',
-        'Authorization Middleware kiểm tra quyền. Nếu cần quyền, gọi ChallengeAsync() để từ chối/redirect.',
+        'Request hits the Authentication Middleware.',
+        'Middleware checks for credentials. If none found, the user is set as anonymous.',
+        'Authorization Middleware checks permissions. If access is required, it calls ChallengeAsync() to reject or redirect.',
       ],
     },
     {
-      flowName: 'Quá trình Đăng nhập (Signing In)',
+      flowName: 'Signing In',
       steps: [
-        'User gửi ID & Password qua Login form.',
-        'Hệ thống kiểm tra với database.',
-        'Nếu dùng JWT, tạo JWT Token chứa claims của User.',
-        'Gửi JWT Token về cho client lưu trữ (Local storage, session, cookie).',
+        'User sends their ID & Password through the login form.',
+        'System verifies credentials against the database.',
+        'If using JWT, a JWT Token is created containing the user claims.',
+        'JWT Token is sent back to the client to be stored (Local Storage, session, or cookie).',
       ],
     },
     {
-      flowName: 'Các Request tiếp theo',
+      flowName: 'Subsequent Requests',
       steps: [
-        'User gửi request kèm token trong Authorization header.',
-        'Authentication Middleware đọc token, tạo ClaimsIdentity và cập nhật HttpContext.',
-        'Authorization Middleware kiểm tra HttpContext.User và cho phép truy cập.',
+        'User sends a request with the token in the Authorization header.',
+        'Authentication Middleware reads the token, creates a ClaimsIdentity, and updates the HttpContext.',
+        'Authorization Middleware checks HttpContext.User and grants access accordingly.',
       ],
     },
   ],
@@ -133,22 +133,22 @@ export const securityFlowData: SequenceDiagramListProps = {
 // ─── Pros/Cons ────────────────────────────────────────────────────────────────
 
 export const prosConsData: ProsConsTableProps = {
-  title: 'Điểm mạnh & Điểm yếu của JWT trong RESTful',
+  title: 'JWT in RESTful — Pros & Cons',
   pros: [
-    'Nhỏ gọn (Compact): Kích thước nhỏ hơn XML/SAML, tối ưu cho HTTP.',
-    'Dễ parse: JSON mapping trực tiếp ra object trong hầu hết các ngôn ngữ lập trình.',
-    'Stateless: Server không cần lưu trữ session, dễ dàng Scale mở rộng hệ thống.',
+    'Compact: Smaller than XML/SAML, making it lightweight for HTTP transport.',
+    'Easy to parse: JSON maps directly to objects in almost every programming language.',
+    'Stateless: The server does not need to store sessions, making horizontal scaling simple.',
   ],
   cons: [
-    'Không thể thu hồi (Revoke) ngay lập tức: Token có thời hạn, nếu lộ token trước khi hết hạn sẽ rủi ro.',
-    'Data lộ diện: Payload chỉ được encode base64, không encrypt, không nên chứa dữ liệu nhạy cảm.',
+    'Cannot be revoked immediately: Tokens have an expiry, so a leaked token stays valid until it expires.',
+    'Payload is exposed: The payload is only Base64-encoded, not encrypted — avoid storing sensitive data inside.',
   ],
 };
 
 // ─── Conclusion ───────────────────────────────────────────────────────────────
 
 export const conclusionData: CallOutBlockProps = {
-  title: 'Kết luận',
+  title: 'Conclusion',
   content:
-    'Bảo mật WebService không chỉ là việc cấp phát Token. Nó là một chiến lược toàn diện từ việc mã hóa kênh truyền (TLS/SSL), xác thực đầu vào, quản lý danh tính (Authentication), cho đến phân quyền chặt chẽ (Authorization) dựa trên Role hoặc Policy. Việc sử dụng JWT là giải pháp tối ưu cho REST API hiện đại nhờ tính stateless và gọn nhẹ.',
+    'Securing a WebService is not just about handing out tokens. It is a full strategy — from encrypting the transport layer (TLS/SSL) and validating inputs, to managing identity (Authentication) and enforcing strict access control (Authorization) based on roles or policies. JWT is the go-to solution for modern REST APIs thanks to its stateless nature and compact size.',
 };

@@ -32,44 +32,69 @@ const SectionDivider = () => (
   </div>
 );
 
-// Nav bar (Larger & Easier to interact)
+// Nav bar
+const NAV_LINKS = [
+  { href: '#flow',     label: 'Security Flow' },
+  { href: '#concepts', label: 'Core Concepts' },
+  { href: '#jwt',      label: 'JWT' },
+  { href: '#abac',     label: 'ABAC' },
+  { href: '#csharp',   label: 'C# Examples' },
+];
+
 const NavBar = () => (
-  <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b-2 border-slate-100 shadow-sm">
-    <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-      <div className="flex items-center gap-4 group cursor-pointer">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-          <span className="text-white text-lg font-black italic">S</span>
-        </div>
-        <div>
-          <span className="block font-black text-slate-900 text-lg leading-tight tracking-tight">Security in RESTful</span>
-          <span className="block text-[10px] font-bold text-blue-600 uppercase tracking-widest">Tech Documentation</span>
+  <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-2xl border-b border-slate-200/80 shadow-[0_1px_12px_0_rgba(15,23,42,0.06)]">
+    <div className="max-w-6xl mx-auto px-6 h-[75px] flex items-center justify-between gap-8">
+
+      {/* Logo */}
+      <div className="flex items-center gap-3 group cursor-pointer select-none flex-shrink-0">
+        <div className="leading-none">
+          <span className="block font-black text-slate-900 text-[16.5px] tracking-tight">Security in RESTful</span>
+          <span className="block text-[10px] font-bold text-blue-500 uppercase tracking-[0.18em] mt-0.5">Tech Documentation</span>
         </div>
       </div>
-      <div className="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-500">
-        <a href="#flow" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">Luồng Standard</a>
-        <a href="#concepts" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">Khái niệm</a>
-        <a href="#jwt" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">JWT</a>
-        <a href="#abac" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">ABAC (Advanced)</a>
-        <a href="#csharp" className="hover:text-blue-600 transition-colors py-2 border-b-2 border-transparent hover:border-blue-600">C# Code</a>
+
+      {/* Nav Links */}
+      <div className="hidden lg:flex items-center gap-1">
+        {NAV_LINKS.map(({ href, label }) => (
+          <a
+            key={href}
+            href={href}
+            className="relative px-4 py-2 rounded-lg text-[14px] font-semibold text-slate-500 hover:text-blue-600 hover:bg-blue-50/70 transition-all duration-150 group"
+          >
+            {label}
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 group-hover:w-4 h-0.5 bg-blue-500 rounded-full transition-all duration-200" />
+          </a>
+        ))}
       </div>
+
+
+      {/* Mobile hamburger */}
       <div className="lg:hidden">
-        <button className="p-2 bg-slate-100 rounded-lg text-slate-600">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <button className="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
         </button>
       </div>
+
     </div>
   </nav>
 );
 
 // Footer
 const Footer = () => (
-  <footer className="mt-20 py-12 border-t border-slate-200 bg-white">
-    <div className="max-w-5xl mx-auto px-6 text-center">
-      <div className="w-12 h-1 bg-slate-100 mx-auto mb-6 rounded-full" />
-      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
-        Security in RESTful WebService — 2024 Technical Guide
-      </p>
-      <p className="text-[10px] text-slate-300 mt-2 font-medium">Build with React + Tailwind + ByteByteGo Aesthetic</p>
+  <footer className="mt-20 border-t border-slate-200 bg-slate-50/60">
+    <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center">
+          <span className="text-white text-[9px] font-black">S/R</span>
+        </div>
+        <span className="text-[11px] font-bold text-slate-500 tracking-tight">Security in RESTful WebService</span>
+      </div>
+      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Technical Guide · 2024</p>
+      <p className="text-[10px] text-slate-400 font-medium">Built with React + Tailwind + Framer Motion</p>
     </div>
   </footer>
 );

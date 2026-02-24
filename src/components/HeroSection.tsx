@@ -59,9 +59,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle, content }) =
               {subtitle}
             </motion.p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {content.map((text, i) => {
                 const Icon = icons[i];
+                const borderColors = [
+                  'border-blue-200',
+                  'border-amber-200',
+                  'border-rose-200',
+                ];
                 const parts = text.split(':');
                 const cardTitle = parts[0];
                 const cardDesc = parts.slice(1).join(':');
@@ -71,16 +76,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle, content }) =
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
-                    className="flex flex-col gap-3 group"
+                    className={`flex flex-col gap-3 p-4 rounded-2xl border bg-white/60 group ${borderColors[i]}`}
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md transform group-hover:rotate-6 transition-transform ${iconColors[i]}`}>
-                      <Icon size={20} />
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 border-2 transform group-hover:rotate-6 transition-transform ${iconColors[i]} ${borderColors[i]}`}>
+                      <Icon size={22} />
                     </div>
                     <div>
-                      <p className="font-black text-slate-800 text-xs mb-1 uppercase tracking-tight">
+                      <p className="font-black text-slate-800 text-[13px] mb-1 uppercase tracking-tight">
                         {cardTitle.trim()}
                       </p>
-                      <p className="text-slate-500 text-[10px] font-medium leading-relaxed">
+                      <p className="text-slate-500 text-[11px] font-medium leading-relaxed">
                         {cardDesc.trim()}
                       </p>
                     </div>
@@ -139,7 +144,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle, content }) =
                 <motion.div 
                   animate={{ y: [0, -10, 0] }}
                   transition={{ repeat: Infinity, duration: 3 }}
-                  className="absolute bottom-6 right-6 p-4 bg-emerald-500 rounded-2xl shadow-lg border-2 border-white flex items-center gap-3"
+                  className="absolute bottom-6 right-6 p-4 bg-emerald-500 rounded-2xl border-2 border-emerald-300 flex items-center gap-3"
                 >
                    <ShieldCheck className="text-white" size={24} />
                    <div className="text-white">

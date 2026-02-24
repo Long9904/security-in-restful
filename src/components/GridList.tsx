@@ -14,10 +14,6 @@ const GridList: React.FC<GridListProps> = ({ title, items }) => {
   return (
     <SectionWrapper>
       <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">{title}</h2>
-      <p className="text-slate-500 text-sm mb-8">
-        Tuân thủ các nguyên tắc sau để xây dựng API an toàn và đáng tin cậy.
-      </p>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {items.map((item, i) => (
           <motion.div

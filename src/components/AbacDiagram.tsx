@@ -40,7 +40,7 @@ const AbacDiagram = () => {
         </span>
         <h2 className="text-4xl font-black text-slate-900 mt-6 tracking-tight">Attribute-Based Access Control</h2>
         <p className="text-slate-500 font-medium mt-3 max-w-3xl mx-auto">
-          "ABAC không chỉ kiểm tra Role, mà kiểm tra mọi thuộc tính có sẵn của User, Tài nguyên và cả bối cảnh xung quanh để đưa ra quyết định thông minh."
+          "ABAC doesn't just check the Role — it evaluates every available attribute of the User, the Resource, and even the surrounding context to make a smarter, more precise access decision."
         </p>
       </div>
 
@@ -172,18 +172,18 @@ const AbacDiagram = () => {
                    <div className="w-1.5 h-4 bg-blue-500 rounded-full" /> 
                    RBAC (Old Way)
                 </h5>
-                <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                  "Nếu là <b>Quản lý</b> thì được xóa." <br/> — Quá thô sơ, không kiểm tra được Alice xóa vào ban đêm hay ban ngày, xóa dữ liệu của ai.
-                </p>
+                 <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                   "If you're a <b>Manager</b>, you can delete." <br/> — Too coarse-grained. It doesn't check whether Alice deletes at night or daytime, or whose data she's deleting.
+                 </p>
              </div>
              <div>
                 <h5 className="font-black text-slate-900 text-sm mb-4 uppercase tracking-widest flex items-center gap-2">
                    <div className="w-1.5 h-4 bg-indigo-500 rounded-full" /> 
                    ABAC (New Way)
                 </h5>
-                <p className="text-sm text-slate-500 leading-relaxed font-medium">
-                  "Nếu Alice là <b>Y tá</b>, trực <b>ca sáng</b>, và bệnh nhân này thuộc <b>khoa</b> của Alice thì mới được xem." <br/> — Bảo mật tuyệt đối và cực kỳ linh hoạt.
-                </p>
+                 <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                   "If Alice is a <b>Nurse</b>, on the <b>morning shift</b>, and this patient belongs to <b>Alice's ward</b> — only then can she view the record." <br/> — Absolute security with extreme flexibility.
+                 </p>
              </div>
           </div>
 
